@@ -105,10 +105,20 @@ async def generate_graph_dataset(args):
             print(e)
             pass
 
+    # Check if file exists and load existing data
+    all_data = []
+    if os.path.exists(args.save_filepath):
+        with open(args.save_filepath, "r") as file:
+            all_data = json.load(file)
+    
+    # Extend with new data
+    all_data.extend(final_dataset)
+    
+    # Save to file
     with open(args.save_filepath, "w") as file:
-        json.dump(final_dataset, file, indent=None) 
+        json.dump(all_data, file, indent=None) 
 
-    return final_dataset
+    return all_data
 
 
 
@@ -128,7 +138,7 @@ if __name__ == "__main__":
         parser.add_argument("--num_dialogue_turns", type=int, default=3)
         parser.add_argument("--samples", type=int, default=40)
         parser.add_argument("--save_dir", type=str, default="./agent_graph_dataset")
-        parser.add_argument("--model_type", type=str, default="gpt-4o-mini")
+        parser.add_argument("--model_type", type=str, default="llm-large-v4")
         parser.add_argument("--phase", type=str, default="test")
         parser.add_argument("--save_filepath", type=str)
 
@@ -144,3 +154,24 @@ if __name__ == "__main__":
     args = parse_arguments()
     dataset = asyncio.run(generate_graph_dataset(args))
     print(len(dataset))
+# cd MA
+
+# # Sinh training data (gọi LLM nhiều lần)
+# chmod +x ./scripts/train/gen_conversation_train.sh
+# ./scripts/train/gen_conversation_train.sh && python merge_datasets.py --phase train
+
+# # Sinh test data
+# chmod +x ./scripts/test/gen_conversation_test.sh
+# ./scripts/test/gen_conversation_test.sh && python merge_datasets.py --phase test
+
+# # Chuyển thành GNN input
+# python gen_training_dataset.py
+
+# # Huấn luyện GNN
+# python train.py --epochs 50 --batch_size 32 --lr 0.001
+
+# # Đánh giá
+# python main_defense_for_different_topology.py \
+#   --graph_type random \
+#   --gnn_checkpoint_path ./checkpoint/memory_attack/best_model.pt \
+#   --model_type gpt-4o-mini
