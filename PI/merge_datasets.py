@@ -22,7 +22,9 @@ files = os.listdir(root)
 datafiles = []
 for file in files: 
     data_file = os.path.join(root, file)
-    datafiles.append(data_file)
+    # Chỉ xử lý file JSON, bỏ qua thư mục
+    if os.path.isfile(data_file) and data_file.endswith('.json'):
+        datafiles.append(data_file)
 
 dataset = []
 for datafile in datafiles: 

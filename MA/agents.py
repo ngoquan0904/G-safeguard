@@ -14,9 +14,7 @@ def llm_invoke(prompt, model_type: str):
             temperature=0,
             max_tokens=1024
         ).choices[0].message.content
-    
     return response
-
 
 async def allm_invoke(prompt, model_type: str): 
     aclient = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("BASE_URL"))
